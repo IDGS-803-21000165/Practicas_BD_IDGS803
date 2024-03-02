@@ -29,6 +29,58 @@ def registro():
     return render_template("empleados.html", form=emp_form)
 
 
+@app.route("/eliminar", methods=["GET", "POST"])
+def eliminar():
+    emp_form = forms.Empleado(request.form)
+    if request.method == 'GET':
+        id = request.args.get("id")
+        emp1 = db.session.query(Empleados).filter(
+            Empleados.id == id).first()
+        emp_form.id.data = request.args.get('id')
+        emp_form.nombre.data = emp1.nombre
+        emp_form.correo.data = emp1.correo
+        emp_form.telefono.data = emp1.telefono
+        emp_form.direccion.data = emp1.direccion
+        emp_form.sueldo.data = emp1.sueldo
+    if request.method == 'POST':
+        id = emp_form.id.data
+        empleado = Empleados.query.get(id)
+        db.session.delete(empleado)
+        db.session.commit()
+        return redirect("ABC_Completo")
+
+    return render_template("eliminar.html", form=emp_form)
+
+
+@app.route("/modificar", methods=["GET", "POST"])
+def modificar():
+    emp_form = forms.Empleado(request.form)
+    if request.method == 'GET':
+        id = request.args.get("id")
+        emp1 = db.session.query(Empleados).filter(
+            Empleados.id == id).first()
+        emp_form.id.data = request.args.get('id')
+        emp_form.nombre.data = emp1.nombre
+        emp_form.correo.data = emp1.correo
+        emp_form.telefono.data = emp1.telefono
+        emp_form.direccion.data = emp1.direccion
+        emp_form.sueldo.data = emp1.sueldo
+    if request.method == 'POST':
+        id = emp_form.id.data
+        empleado = db.session.query(Empleados).filter(
+            Empleados.id == id).first()
+        empleado.nombre = emp_form.nombre.data
+        empleado.correo = emp_form.correo.data
+        empleado.telefono = emp_form.telefono.data
+        empleado.direccion = emp_form.direccion.data
+        empleado.sueldo = emp_form.sueldo.data
+        db.session.add(empleado)
+        db.session.commit()
+        return redirect("ABC_Completo")
+
+    return render_template("modificar.html", form=emp_form)
+
+
 @app.route("/ABC_Completo", methods=['GET', 'POST'])
 def ABC_Completo():
     emp_form = forms.Empleado(request.form)

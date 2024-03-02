@@ -79,6 +79,7 @@
         {%block content%}
         {%import "_macros.html" as macros%}
         <h1>Tabla empleados</h1>
+        <h4><a href="empleados">Nuevo</a></h4>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -99,8 +100,8 @@
                     <td>{{emp.telefono}}</td>
                     <td>{{emp.direccion}}</td>
                     <td>{{emp.sueldo}}</td>
-                    <td><button class="btn btn-danger">Eliminar</button></td>
-                    <td><button class="btn btn-warning">Modificar</button></td>
+                    <td><a href="eliminar?id={{emp.id}}" class="btn btn-danger">Eliminar</a></td>
+                    <td><a href="modificar?id={{emp.id}}" class="btn btn-warning">Modificar</a></td>
                 </tr>
                 {%endfor%}
             </tbody>
