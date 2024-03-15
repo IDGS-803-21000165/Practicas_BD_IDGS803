@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        .desactivado {
+            display: none;
+        }
+
+        .activado {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        {% block content%}
+        {%import "_macros.html" as macros%}
+        <div class="container">
+            <!-- Formulario para guardar palabra -->
+            <main class="row">
+                <div class="col-md-3">
+                    <form action="/pizzeria" name="pizzeria" id="pizzeria" method="POST" novalidate>
+                        {{ macros.render_field(form.nombre_completo, class= "form-control") }}
+                </div>
+                <div class="col-md-3">
+                    {{ macros.render_field(form.direccion, class= "form-control") }}
+                </div>
+                <div class="col-md-3">
+                    {{ macros.render_field(form.telefono, class= "form-control") }}
+                </div>
+                <div class="col-md-3">
+                    {{ macros.render_field(form.fecha_compra, class= "form-control") }}
+                </div>
+                <div class="col-md-3">
+                    {{ macros.render_field(formp.tamanio, class= "form-group") }}
+                </div>
+                <div class="col-md-3">
+                    {{ macros.render_field(formp.ingredientes, class= "form-group") }}
+                </div>
+                <div class="col-md-3">
+                    {{ macros.render_field(formp.num_pizzas, class= "form-control") }}
+                </div>
+                <div class="col-md-12 mt-3">
+                    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                    <input type="submit" name="guardar" value="Guardar" class="btn btn-primary">
+                </div>
+                </form>
+            </main>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tamaño</th>
+                                <th>Ingredientes</th>
+                                <th>Num. Pizzas</th>
+                                <th>Sub Total</th>
+                                <th>Quitar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%for pizz in pizzas%}
+                            <tr>
+                                <td>{{ pizz.tamanio }}</td>
+                                <td>{{ ', '.join(pizz.ingredientes) }}</td>
+                                <td>{{ pizz.num_pizzas }}</td>
+                                <td>{{ pizz.subtotal }}</td>
+                                <td>
+                                    <a href="/quitar?index={{loop.index}}" class="btn btn-danger">Quitar</a>
+                                </td>
+                                <td>
+                                    <a id="btnModificar" href="/modificarpedido?index={{loop.index}}"
+                                        class="desactivado btn btn-warning">Modificar</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3">Total</th>
+                                <th>{{ total }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <button onclick="confirmarCompra('{{csrf_token()}}')" class="btn btn-success">Terminar</button>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <form action="/filtrarmes" method="POST">
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="mes" class="form-label">Mes:</label>
+                                    <select class="form-select" id="mes" name="mes">
+                                        <option value="0">Selecciona un mes...</option>
+                                        <option value="1">Enero</option>
+                                        <option value="2">Febrero</option>
+                                        <option value="3">Marzo</option>
+                                        <option value="4">Abril</option>
+                                        <option value="5">Mayo</option>
+                                        <option value="6">Junio</option>
+                                        <option value="7">Julio</option>
+                                        <option value="8">Agosto</option>
+                                        <option value="9">Septiembre</option>
+                                        <option value="10">Octubre</option>
+                                        <option value="11">Noviembre</option>
+                                        <option value="12">Diciembre</option>
+                                    </select>
+                                    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                                    <button type="submit" class="btn btn-primary">Mes</button>
+                                </div>
+                            </div>
+                        </form>
+                        <form action="/filtrarpordia" method="POST">
+                            <div class="col">
+                                <label for="dia" class="form-label">Día de la Semana:</label>
+                                <select class="form-select" id="dia" name="dia">
+                                    <option value="">Selecciona un día...</option>
+                                    <option value="Monday">Lunes</option>
+                                    <option value="Tuesday">Martes</option>
+                                    <option value="Wednesday">Miércoles</option>
+                                    <option value="Thursday">Jueves</option>
+                                    <option value="Friday">Viernes</option>
+                                    <option value="Saturday">Sábado</option>
+                                    <option value="Sunday">Domingo</option>
+                                </select>
+                                <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                                <button type="submit" class="btn btn-primary">Día</button>
+                            </div>
+                        </form>
+                    </div>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if ventas %}
+                            {% for venta in ventas %}
+                            <tr>
+                                <td>{{ venta.cliente }}</td>
+                                <td>${{ venta.total }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="2">No hay ventas registradas.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Ventas totales del día:</th>
+                                <th>{{ ventaPeriodo }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/sweetalert2/sweetalert2.all.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/axios/axios.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>
